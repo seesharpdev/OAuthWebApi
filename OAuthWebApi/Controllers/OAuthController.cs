@@ -3,26 +3,41 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using DotNetOpenAuth.Messaging;
-using DotNetOpenAuth.OAuth2;
 using System.Security.Cryptography.X509Certificates;
 using System.Configuration;
 
+using DotNetOpenAuth.Messaging;
+using DotNetOpenAuth.OAuth2;
+using OAuthWebApi.Infrastructure;
+using OAuthWebApi.Models;
+
 namespace OAuthWebApi.Controllers
 {
-    public class OAuthController : Controller {
+    public class OAuthController : Controller
+    {
+        private string _absolutePathToPfx;
+        private string _certificatePassword;
+        private string _absolutePathToCertificate;
+
+        public OAuthController()
+        {
+            _absolutePathToPfx = ConfigurationManager.AppSettings["AbsolutePathToPfx"];
+            _certificatePassword = ConfigurationManager.AppSettings["CertificatePassword"];
+            _absolutePathToCertificate = ConfigurationManager.AppSettings["AbsolutePathToCertificate"];
+        }
 
         /// <summary>
         /// The OAuth 2.0 token endpoint.
         /// </summary>
         /// <returns>The response to the Client.</returns>
-        public ActionResult Token() {
-
-            using (OAuth2AuthorizationServer server = (new OAuth2AuthorizationServer(new X509Certificate2(ConfigurationManager.AppSettings["AbsolutePathToPfx"], ConfigurationManager.AppSettings["CertificatePassword"]),
-                            new X509Certificate2(ConfigurationManager.AppSettings["AbsolutePathToCertificate"]))))
+        public ActionResult Token()
+        {
+            using (var server = (new OAuth2AuthorizationServer(new X509Certificate2(_absolutePathToPfx, _certificatePassword),
+                            new X509Certificate2(_absolutePathToCertificate))))
             {
-                AuthorizationServer authorizationServer = new AuthorizationServer(server);
-                OutgoingWebResponse response = authorizationServer.HandleTokenRequest(this.Request);
+                var authorizationServer = new AuthorizationServer(server);
+                OutgoingWebResponse response = authorizationServer.HandleTokenRequest(Request);
+
                 return response.AsActionResult();
             }
         }
@@ -33,12 +48,12 @@ namespace OAuthWebApi.Controllers
         /// <returns>The browser HTML response that prompts the user to authorize the client.</returns>
         [Authorize, AcceptVerbs(HttpVerbs.Get | HttpVerbs.Post)]
         //[HttpHeader("x-frame-options", "SAMEORIGIN")] // mitigates clickjacking
-        public ActionResult Authorise() {
-
-            using (OAuth2AuthorizationServer server = (new OAuth2AuthorizationServer(new X509Certificate2(ConfigurationManager.AppSettings["AbsolutePathToPfx"], ConfigurationManager.AppSettings["CertificatePassword"]),
-                            new X509Certificate2(ConfigurationManager.AppSettings["AbsolutePathToCertificate"]))))
+        public ActionResult Authorise()
+        {
+            using (var server = (new OAuth2AuthorizationServer(new X509Certificate2(_absolutePathToPfx, _certificatePassword),
+                            new X509Certificate2(_absolutePathToCertificate))))
             {
-                AuthorizationServer authorizationServer = new AuthorizationServer(server);
+                var authorizationServer = new AuthorizationServer(server);
 
                 var pendingRequest = authorizationServer.ReadAuthorizationRequest();
                 if (pendingRequest == null)
@@ -46,7 +61,8 @@ namespace OAuthWebApi.Controllers
                     throw new HttpException((int)HttpStatusCode.BadRequest, "Missing authorization request.");
                 }
 
-                var requestingClient = MvcApplication.DataContext.Clients.First(c => c.ClientIdentifier == pendingRequest.ClientIdentifier);
+                var requestingClient = 
+                    MvcApplication.DataContext.Clients.First(c => c.ClientIdentifier == pendingRequest.ClientIdentifier);
 
                 // Consider auto-approving if safe to do so.
                 if (((OAuth2AuthorizationServer)authorizationServer.AuthorizationServerServices).CanBeAutoApproved(pendingRequest))
@@ -72,13 +88,13 @@ namespace OAuthWebApi.Controllers
         /// <param name="isApproved">if set to <c>true</c>, the user has authorized the Client; <c>false</c> otherwise.</param>
         /// <returns>HTML response that redirects the browser to the Client.</returns>
         [Authorize, HttpPost, ValidateAntiForgeryToken]
-
-        public ActionResult AuthoriseResponse(bool isApproved) {
-
-            using (OAuth2AuthorizationServer server = (new OAuth2AuthorizationServer(new X509Certificate2(ConfigurationManager.AppSettings["AbsolutePathToPfx"], ConfigurationManager.AppSettings["CertificatePassword"]),
-                            new X509Certificate2(ConfigurationManager.AppSettings["AbsolutePathToCertificate"]))))
+        //public ActionResult AuthoriseResponse(bool isApproved)
+        public ActionResult AuthoriseResponse(FormCollection form)
+        {
+            using (var server = (new OAuth2AuthorizationServer(new X509Certificate2(_absolutePathToPfx, _certificatePassword),
+                            new X509Certificate2(_absolutePathToCertificate))))
             {
-                AuthorizationServer authorizationServer = new AuthorizationServer(server);
+                var authorizationServer = new AuthorizationServer(server);
                 var pendingRequest = authorizationServer.ReadAuthorizationRequest();
                 if (pendingRequest == null)
                 {
@@ -86,13 +102,15 @@ namespace OAuthWebApi.Controllers
                 }
 
                 IDirectedProtocolMessage response;
-                if (isApproved)
+                //if (isApproved)
+                if (form["IsApproved"] == "Approve")
                 {
 
                     // The authorization we file in our database lasts until the user explicitly revokes it.
                     // You can cause the authorization to expire by setting the ExpirationDateUTC
                     // property in the below created ClientAuthorization.
-                    var client = MvcApplication.DataContext.Clients.First(c => c.ClientIdentifier == pendingRequest.ClientIdentifier);
+                    var client = 
+                        MvcApplication.DataContext.Clients.First(c => c.ClientIdentifier == pendingRequest.ClientIdentifier);
                     client.ClientAuthorizations.Add(
                         new ClientAuthorization
                         {

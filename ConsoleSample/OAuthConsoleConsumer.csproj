@@ -8,8 +8,8 @@
     <ProjectGuid>{AB7AB72C-C26E-4B5F-A7FB-1FDFD8836A61}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>oAuthConsoleConsumer</RootNamespace>
-    <AssemblyName>oAuthConsoleConsumer</AssemblyName>
+    <RootNamespace>OAuthConsoleConsumer</RootNamespace>
+    <AssemblyName>OAuthConsoleConsumer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>

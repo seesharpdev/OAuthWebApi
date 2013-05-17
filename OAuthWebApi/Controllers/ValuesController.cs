@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Http;
 
 namespace OAuthWebApi.Controllers
@@ -12,7 +10,7 @@ namespace OAuthWebApi.Controllers
         // GET /api/values
         public IEnumerable<string> Get()
         {
-            return new string[] { "value1", DateTime.UtcNow.ToString() };
+            return new[] { "value1", DateTime.UtcNow.ToString() };
         }
 
         // GET /api/values/5

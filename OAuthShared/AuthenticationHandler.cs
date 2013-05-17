@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.IdentityModel.Tokens;
 using System.Linq;
-using System.Text;
-using System.Net.Http;
-using System.Threading.Tasks;
-using DotNetOpenAuth.OAuth2;
-using System.IdentityModel.Tokens;
 using System.Net;
-using System.Threading;
+using System.Net.Http;
 using System.Security.Principal;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
+
+using DotNetOpenAuth.OAuth2;
 using Microsoft.IdentityModel.Claims;
 
 namespace OAuthShared
@@ -25,13 +23,17 @@ namespace OAuthShared
             {
                 string authHeader = request.Headers.GetValues("Authorization").First();
 
-                string header = "Bearer ";
+                const string header = "Bearer ";
 
                 if (string.CompareOrdinal(authHeader, 0, header, 0, header.Length) == 0)
                 {
-                    using (AuthenticationConfiguration config = new AuthenticationConfiguration())
+                    using (var config = new AuthenticationConfiguration())
                     {
-                        var resourceServer = new WebAPIResourceServer(new StandardAccessTokenAnalyzer(config.CreateAuthorizationServerSigningServiceProvider(), config.CreateResourceServerEncryptionServiceProvider()));
+                        var resourceServer = new WebAPIResourceServer(
+                            new StandardAccessTokenAnalyzer(
+                                config.CreateAuthorizationServerSigningServiceProvider(), 
+                                config.CreateResourceServerEncryptionServiceProvider()));
+
                         var principal = resourceServer.GetPrincipal(request, request.RequestUri.AbsoluteUri);
                         if (principal != null)
                         {
@@ -50,7 +52,7 @@ namespace OAuthShared
             }
 
             return base.SendAsync(request, cancellationToken).ContinueWith(
-                (task) =>
+                task =>
                 {
                     var response = task.Result;
 

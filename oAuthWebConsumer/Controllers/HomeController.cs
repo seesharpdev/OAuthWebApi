@@ -1,37 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+
 using DotNetOpenAuth.Messaging;
 using DotNetOpenAuth.OAuth2;
+
 using OAuthShared;
 
 namespace oAuthWebConsumer.Controllers
 {
     public class HomeController : Controller
     {
-        private static string CLIENT_ID = "samplewebapiconsumer";
-        private static string CLIENT_SECRET = "samplesecret";
-        private static string API_ENDPOINT = "http://localhost:30777/api/values";
-        private static string AUTHORIZATION_ENDPOINT = "http://localhost:30777/OAuth/Authorise";
-        private static string TOKEN_ENDPOINT = "http://localhost:30777/OAuth/Token";
-        private static string AUTHORIZATION_CALLBACK = "http://localhost:40551/";
-
+        private const string ClientId = "samplewebapiconsumer";
+        private const string ClientSecret = "samplesecret";
+        private const string ApiEndpoint = "http://localhost:30777/api/values";
+        private const string AuthorizationEndpoint = "http://localhost:30777/OAuth/Authorise";
+        private const string TokenEndpoint = "http://localhost:30777/OAuth/Token";
+        private const string AuthorizationCallback = "http://localhost:40551/";
 
         public IAuthorizationState Authorization { get; private set; }
+
         public UserAgentClient Client { get; set; }
 
         public HomeController()
         {
-            var authServer = new AuthorizationServerDescription()
-            {
-                AuthorizationEndpoint = new Uri(AUTHORIZATION_ENDPOINT),
-                TokenEndpoint = new Uri(TOKEN_ENDPOINT),
-            };
-            this.Client = new UserAgentClient(authServer, CLIENT_ID, CLIENT_SECRET);
-            this.Authorization = new AuthorizationState();
-            this.Authorization.Callback = new Uri(AUTHORIZATION_CALLBACK);
+            var authServer = new AuthorizationServerDescription
+                {
+                    AuthorizationEndpoint = new Uri(AuthorizationEndpoint),
+                    TokenEndpoint = new Uri(TokenEndpoint),
+                };
+
+            Client = new UserAgentClient(authServer, ClientId, ClientSecret);
+            Authorization = new AuthorizationState
+                {
+                    Callback = new Uri(AuthorizationCallback)
+                };
         }
 
         /// <summary>
@@ -46,18 +49,20 @@ namespace oAuthWebConsumer.Controllers
             {
                 try
                 {
-                    this.Client.ProcessUserAuthorization(Request.Url, this.Authorization);
+                    Client.ProcessUserAuthorization(Request.Url, Authorization);
                     var valueString = string.Empty;
-                    if (!string.IsNullOrEmpty(this.Authorization.AccessToken))
+                    if (!string.IsNullOrEmpty(Authorization.AccessToken))
                     {
-                        valueString = CallAPI(this.Authorization);
+                        valueString = CallApi(Authorization);
                     }
+
                     ViewBag.Values = valueString;
                 }
-                catch (ProtocolException ex)
+                catch (ProtocolException)
                 {
                 }
             }
+
             return View();
         }
 
@@ -67,13 +72,17 @@ namespace oAuthWebConsumer.Controllers
         /// </summary>
         /// <param name="authorization"></param>
         /// <returns></returns>
-        private string CallAPI(IAuthorizationState authorization)
+        private string CallApi(IAuthorizationState authorization)
         {
-            var webClient = new WebClient();
-            webClient.Headers["Content-Type"] = "application/json";
-            webClient.Headers["X-JavaScript-User-Agent"] = "API Explorer";
-            this.Client.AuthorizeRequest(webClient, this.Authorization);
-            var valueString = webClient.DownloadString(API_ENDPOINT);
+            string valueString;
+            using (var webClient = new WebClient())
+            {
+                webClient.Headers["Content-Type"] = "application/json";
+                webClient.Headers["X-JavaScript-User-Agent"] = "API Explorer";
+                Client.AuthorizeRequest(webClient, Authorization);
+                valueString = webClient.DownloadString(ApiEndpoint);
+            }
+
             return valueString;
         }
 
@@ -83,30 +92,27 @@ namespace oAuthWebConsumer.Controllers
         /// <returns></returns>
         public JsonResult GetValues()
         {
-            bool isOK = false;
-            bool requiresAuth = false;
-            string redirectURL = "";
+            var isOK = false;
+            var requiresAuth = false;
+            var redirectUrl = string.Empty;
             if (Session["AccessToken"] == null)
             {
-                this.Authorization.Scope.AddRange(OAuthUtilities.SplitScopes(API_ENDPOINT));
-                Uri authorizationUrl = this.Client.RequestUserAuthorization(this.Authorization);
+                Authorization.Scope.AddRange(OAuthUtilities.SplitScopes(ApiEndpoint));
+                Uri authorizationUrl = Client.RequestUserAuthorization(Authorization);
                 requiresAuth = true;
-                redirectURL = authorizationUrl.AbsoluteUri;
+                redirectUrl = authorizationUrl.AbsoluteUri;
                 isOK = true;
             }
-            else
-            {
-                requiresAuth = false;
-            }
-            return new JsonResult()
-            {
-                Data = new
+
+            return new JsonResult
                 {
-                    OK = isOK,
-                    RequiresAuth = requiresAuth,
-                    RedirectURL = redirectURL
-                }
-            };
+                    Data = new
+                    {
+                        OK = isOK,
+                        RequiresAuth = requiresAuth,
+                        RedirectURL = redirectUrl
+                    }
+                };
         }
     }
 }

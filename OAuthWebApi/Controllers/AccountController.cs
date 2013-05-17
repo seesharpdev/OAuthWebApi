@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 
@@ -17,6 +15,7 @@ namespace OAuthWebApi.Controllers
         public ActionResult LogOn(string returnURL)
         {
             ViewBag.ReturnURL = returnURL;
+
             return View();
         }
 

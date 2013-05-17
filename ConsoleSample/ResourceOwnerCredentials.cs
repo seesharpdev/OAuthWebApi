@@ -1,22 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
+
 using DotNetOpenAuth.OAuth2;
 
-namespace oAuthConsoleConsumer
+namespace OAuthConsoleConsumer
 {
     public static class ResourceOwnerCredentials
     {
-        private static string CLIENT_ID = "samplewebapiconsumer";
-        private static string CLIENT_SECRET = "samplesecret";
-        private static string TEST_USERNAME = "steven";
-        private static string TEST_PASSWORD = "pwd";
-        private static string API_ENDPOINT = "http://localhost:30777/api/values";
-        private static string AUTHORIZATION_ENDPOINT = "http://localhost:30777/OAuth/Authorise";
-        private static string TOKEN_ENDPOINT = "http://localhost:30777/OAuth/Token";
-
+        private const string ClientId = "samplewebapiconsumer";
+        private const string ClientSecret = "samplesecret";
+        private const string TestUsername = "steven";
+        private const string TestPassword = "pwd";
+        private const string ApiEndpoint = "http://localhost:30777/api/values";
+        private const string TokenEndpoint = "http://localhost:30777/OAuth/Token";
 
         public static void Run()
         {
@@ -25,13 +21,13 @@ namespace oAuthConsoleConsumer
             #region initial request
 
             // get an access token for the username and password
-            var state = GetAccessToken();
+            var authorizationState = GetAccessToken();
 
-            var tokenexpires = state.AccessTokenExpirationUtc;
-            var token = state.AccessToken;
-            var refresh = state.RefreshToken;
+            var tokenExpiration = authorizationState.AccessTokenExpirationUtc;
+            var token = authorizationState.AccessToken;
+            var refresh = authorizationState.RefreshToken;
 
-            Console.WriteLine("Expires = {0}", tokenexpires);
+            Console.WriteLine("Expires = {0}", tokenExpiration);
             Console.WriteLine();
             Console.WriteLine("Token = {0}", token);
             Console.WriteLine();
@@ -45,10 +41,11 @@ namespace oAuthConsoleConsumer
             Console.WriteLine("");
             Console.ReadKey();
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(API_ENDPOINT);
-            myReq.Headers.Add("Authorization", "Bearer " + token);
-            WebResponse myReqResp = myReq.GetResponse();
-            System.IO.StreamReader myReqRespStream = new System.IO.StreamReader(myReqResp.GetResponseStream());
+            var webRequest = (HttpWebRequest)WebRequest.Create(ApiEndpoint);
+            webRequest.Headers.Add("Authorization", "Bearer " + token);
+            WebResponse webResponse = webRequest.GetResponse();
+            var myReqRespStream = new System.IO.StreamReader(webResponse.GetResponseStream());
+
             Console.WriteLine(myReqRespStream.ReadToEnd());
             Console.WriteLine("");
             Console.WriteLine("Request Complete.");
@@ -57,14 +54,11 @@ namespace oAuthConsoleConsumer
 
             #endregion
 
-
-
             // get a reference to the access token
             var httpClient = new OAuthHttpClient(token)
             {
-                BaseAddress = new Uri(API_ENDPOINT)
+                BaseAddress = new Uri(ApiEndpoint)
             };
-
 
             Console.WriteLine("Calling web api...");
             Console.WriteLine("...");
@@ -74,10 +68,9 @@ namespace oAuthConsoleConsumer
             Console.WriteLine("Got Response");
 
             // if ok write the result
-            if (response.StatusCode == HttpStatusCode.OK)
-                Console.WriteLine(response.Content.ReadAsStringAsync().Result);
-            else
-                Console.WriteLine("Error");
+            Console.WriteLine(response.StatusCode == HttpStatusCode.OK
+                                  ? response.Content.ReadAsStringAsync().Result
+                                  : "Error");
 
             Console.WriteLine();
             /*  */
@@ -88,22 +81,21 @@ namespace oAuthConsoleConsumer
             Console.WriteLine("Refreshing token ...");
 
             // first update the state to get a new token
-            state = GetAccessToken(state.RefreshToken);
+            authorizationState = GetAccessToken(authorizationState.RefreshToken);
 
-            tokenexpires = state.AccessTokenExpirationUtc;
-            token = state.AccessToken;
-            refresh = state.RefreshToken;
+            tokenExpiration = authorizationState.AccessTokenExpirationUtc;
+            token = authorizationState.AccessToken;
+            refresh = authorizationState.RefreshToken;
 
-            Console.WriteLine("Refresh Expires = {0}", tokenexpires);
+            Console.WriteLine("Refresh Expires = {0}", tokenExpiration);
             Console.WriteLine();
             Console.WriteLine("Token = {0}", token);
             Console.WriteLine();
 
             httpClient = new OAuthHttpClient(token)
             {
-                BaseAddress = new Uri(API_ENDPOINT)
+                BaseAddress = new Uri(ApiEndpoint)
             };
-
 
             Console.WriteLine("Enter to call web api...");
             Console.WriteLine("...");
@@ -114,21 +106,24 @@ namespace oAuthConsoleConsumer
 
             // if ok write the result
             if (response.StatusCode == HttpStatusCode.OK)
+            {
                 Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+            }
             else
+            {
                 Console.WriteLine("Error");
+            }
 
             Console.WriteLine();
             Console.WriteLine("Finished calling API with refresh token");
             Console.WriteLine();
-            /**/
+
             #endregion
 
             Console.WriteLine();
             Console.WriteLine("Done");
             Console.ReadLine();
         }
-
 
         private static IAuthorizationState GetAccessToken()
         {
@@ -139,28 +134,32 @@ namespace oAuthConsoleConsumer
         {
             var authorizationServer = new AuthorizationServerDescription
             {
-                //AuthorizationEndpoint = new Uri(AUTHORIZATION_ENDPOINT),
-                TokenEndpoint = new Uri(TOKEN_ENDPOINT),
+                TokenEndpoint = new Uri(TokenEndpoint),
                 ProtocolVersion = ProtocolVersion.V20,
             };
 
             // get a reference to the auth server
-            var client = new UserAgentClient(authorizationServer, CLIENT_ID, CLIENT_SECRET);
+            var client = new UserAgentClient(authorizationServer, ClientId, ClientSecret);
 
             // now get a token
-            IAuthorizationState ostate;
+            IAuthorizationState authorizationState;
             if (refresh == null)
-                ostate = client.ExchangeUserCredentialForToken(TEST_USERNAME, TEST_PASSWORD, new[] { API_ENDPOINT });
+            {
+                authorizationState = 
+                    client.ExchangeUserCredentialForToken(TestUsername, TestPassword, new[] { ApiEndpoint });
+            }
             else
             {
                 // we had previously authenticated so we can use the token rather than the credentials to get a new access token
-                ostate = new AuthorizationState(new[] { API_ENDPOINT });
-                ostate.RefreshToken = refresh;
-                client.RefreshAuthorization(ostate);
+                authorizationState = new AuthorizationState(new[] { ApiEndpoint })
+                    {
+                        RefreshToken = refresh
+                    };
+                client.RefreshAuthorization(authorizationState);
             }
 
             // return result
-            return ostate;
+            return authorizationState;
         }
     }
 }

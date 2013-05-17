@@ -8,22 +8,23 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.ComponentModel;
+using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-using System.Data.EntityClient;
-using System.ComponentModel;
-using System.Xml.Serialization;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using OAuthWebApi.Models;
 
-[assembly: EdmSchemaAttribute()]
+[assembly: EdmSchema()]
 #region EDM Relationship Metadata
 
-[assembly: EdmRelationshipAttribute("OAuthModel", "UserClientAuthorization", "User", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(OAuthWebApi.User), "ClientAuthorization", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OAuthWebApi.ClientAuthorization))]
-[assembly: EdmRelationshipAttribute("OAuthModel", "ClientClientAuthorization", "Client", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(OAuthWebApi.Client), "ClientAuthorization", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OAuthWebApi.ClientAuthorization))]
+[assembly: EdmRelationship("OAuthModel", "UserClientAuthorization", "User", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(User), "ClientAuthorization", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(ClientAuthorization))]
+[assembly: EdmRelationship("OAuthModel", "ClientClientAuthorization", "Client", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(Client), "ClientAuthorization", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(ClientAuthorization))]
 
 #endregion
 
-namespace OAuthWebApi
+namespace OAuthWebApi.Models
 {
     #region Contexts
     
@@ -152,6 +153,7 @@ namespace OAuthWebApi
         private ObjectSet<SymmetricCryptoKey> _SymmetricCryptoKeys;
 
         #endregion
+
         #region AddTo Methods
     
         /// <summary>
@@ -195,19 +197,19 @@ namespace OAuthWebApi
         }
 
         #endregion
+
     }
-    
 
     #endregion
-    
+
     #region Entities
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="OAuthModel", Name="Client")]
+    [EdmEntityType(NamespaceName="OAuthModel", Name="Client")]
     [Serializable()]
-    [DataContractAttribute(IsReference=true)]
+    [DataContract(IsReference=true)]
     public partial class Client : EntityObject
     {
         #region Factory Method
@@ -232,13 +234,14 @@ namespace OAuthWebApi
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=true, IsNullable=false)]
+        [DataMember()]
         public global::System.Int32 ClientId
         {
             get
@@ -264,8 +267,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.String ClientIdentifier
         {
             get
@@ -288,8 +291,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=true)]
+        [DataMember()]
         public global::System.String ClientSecret
         {
             get
@@ -312,8 +315,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.String Callback
         {
             get
@@ -336,8 +339,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.String Name
         {
             get
@@ -360,8 +363,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.Int32 ClientType
         {
             get
@@ -382,16 +385,17 @@ namespace OAuthWebApi
         partial void OnClientTypeChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("OAuthModel", "ClientClientAuthorization", "ClientAuthorization")]
+        [XmlIgnore()]
+        [SoapIgnore()]
+        [DataMember()]
+        [EdmRelationshipNavigationProperty("OAuthModel", "ClientClientAuthorization", "ClientAuthorization")]
         public EntityCollection<ClientAuthorization> ClientAuthorizations
         {
             get
@@ -408,14 +412,15 @@ namespace OAuthWebApi
         }
 
         #endregion
+
     }
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="OAuthModel", Name="ClientAuthorization")]
+    [EdmEntityType(NamespaceName="OAuthModel", Name="ClientAuthorization")]
     [Serializable()]
-    [DataContractAttribute(IsReference=true)]
+    [DataContract(IsReference=true)]
     public partial class ClientAuthorization : EntityObject
     {
         #region Factory Method
@@ -440,13 +445,14 @@ namespace OAuthWebApi
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=true, IsNullable=false)]
+        [DataMember()]
         public global::System.Int32 AuthorizationId
         {
             get
@@ -472,8 +478,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.DateTime CreatedOnUtc
         {
             get
@@ -496,8 +502,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.Int32 ClientId
         {
             get
@@ -520,8 +526,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.Int32 UserId
         {
             get
@@ -544,8 +550,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.String Scope
         {
             get
@@ -568,8 +574,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=true)]
+        [DataMember()]
         public Nullable<global::System.DateTime> ExpirationDateUtc
         {
             get
@@ -590,16 +596,17 @@ namespace OAuthWebApi
         partial void OnExpirationDateUtcChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("OAuthModel", "UserClientAuthorization", "User")]
+        [XmlIgnore()]
+        [SoapIgnore()]
+        [DataMember()]
+        [EdmRelationshipNavigationProperty("OAuthModel", "UserClientAuthorization", "User")]
         public User User
         {
             get
@@ -614,8 +621,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [BrowsableAttribute(false)]
-        [DataMemberAttribute()]
+        [Browsable(false)]
+        [DataMember()]
         public EntityReference<User> UserReference
         {
             get
@@ -634,10 +641,10 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("OAuthModel", "ClientClientAuthorization", "Client")]
+        [XmlIgnore()]
+        [SoapIgnore()]
+        [DataMember()]
+        [EdmRelationshipNavigationProperty("OAuthModel", "ClientClientAuthorization", "Client")]
         public Client Client
         {
             get
@@ -652,8 +659,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [BrowsableAttribute(false)]
-        [DataMemberAttribute()]
+        [Browsable(false)]
+        [DataMember()]
         public EntityReference<Client> ClientReference
         {
             get
@@ -670,14 +677,15 @@ namespace OAuthWebApi
         }
 
         #endregion
+
     }
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="OAuthModel", Name="Nonce")]
+    [EdmEntityType(NamespaceName="OAuthModel", Name="Nonce")]
     [Serializable()]
-    [DataContractAttribute(IsReference=true)]
+    [DataContract(IsReference=true)]
     public partial class Nonce : EntityObject
     {
         #region Factory Method
@@ -698,13 +706,14 @@ namespace OAuthWebApi
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=true, IsNullable=false)]
+        [DataMember()]
         public global::System.String Context
         {
             get
@@ -730,8 +739,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=true, IsNullable=false)]
+        [DataMember()]
         public global::System.String Code
         {
             get
@@ -757,8 +766,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=true, IsNullable=false)]
+        [DataMember()]
         public global::System.DateTime Timestamp
         {
             get
@@ -782,15 +791,16 @@ namespace OAuthWebApi
         partial void OnTimestampChanged();
 
         #endregion
+
     
     }
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="OAuthModel", Name="SymmetricCryptoKey")]
+    [EdmEntityType(NamespaceName="OAuthModel", Name="SymmetricCryptoKey")]
     [Serializable()]
-    [DataContractAttribute(IsReference=true)]
+    [DataContract(IsReference=true)]
     public partial class SymmetricCryptoKey : EntityObject
     {
         #region Factory Method
@@ -813,13 +823,14 @@ namespace OAuthWebApi
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=true, IsNullable=false)]
+        [DataMember()]
         public global::System.String Bucket
         {
             get
@@ -845,8 +856,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=true, IsNullable=false)]
+        [DataMember()]
         public global::System.String Handle
         {
             get
@@ -872,8 +883,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.DateTime ExpiresUtc
         {
             get
@@ -896,8 +907,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.Byte[] Secret
         {
             get
@@ -918,15 +929,16 @@ namespace OAuthWebApi
         partial void OnSecretChanged();
 
         #endregion
+
     
     }
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="OAuthModel", Name="User")]
+    [EdmEntityType(NamespaceName="OAuthModel", Name="User")]
     [Serializable()]
-    [DataContractAttribute(IsReference=true)]
+    [DataContract(IsReference=true)]
     public partial class User : EntityObject
     {
         #region Factory Method
@@ -947,13 +959,14 @@ namespace OAuthWebApi
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=true, IsNullable=false)]
+        [DataMember()]
         public global::System.Int32 Id
         {
             get
@@ -979,8 +992,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.String Username
         {
             get
@@ -1003,8 +1016,8 @@ namespace OAuthWebApi
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
+        [EdmScalarProperty(EntityKeyProperty=false, IsNullable=false)]
+        [DataMember()]
         public global::System.String Password
         {
             get
@@ -1025,16 +1038,17 @@ namespace OAuthWebApi
         partial void OnPasswordChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("OAuthModel", "UserClientAuthorization", "ClientAuthorization")]
+        [XmlIgnore()]
+        [SoapIgnore()]
+        [DataMember()]
+        [EdmRelationshipNavigationProperty("OAuthModel", "UserClientAuthorization", "ClientAuthorization")]
         public EntityCollection<ClientAuthorization> ClientAuthorizations
         {
             get
@@ -1051,8 +1065,10 @@ namespace OAuthWebApi
         }
 
         #endregion
+
     }
 
     #endregion
+
     
 }

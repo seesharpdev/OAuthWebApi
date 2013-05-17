@@ -1,11 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAuthWebApi", "OAuthWebApi\OAuthWebApi.csproj", "{F8F54A8B-EE6F-43FB-8666-C1B52483569E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAuthShared", "OAuthShared\OAuthShared.csproj", "{2F1104A7-B19A-4E02-A6AF-87057A40E675}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oAuthConsoleConsumer", "ConsoleSample\oAuthConsoleConsumer.csproj", "{AB7AB72C-C26E-4B5F-A7FB-1FDFD8836A61}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAuthConsoleConsumer", "ConsoleSample\OAuthConsoleConsumer.csproj", "{AB7AB72C-C26E-4B5F-A7FB-1FDFD8836A61}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oAuthWebConsumer", "oAuthWebConsumer\oAuthWebConsumer.csproj", "{C2078D71-7028-4F95-B300-A4291C8E96EC}"
 EndProject
